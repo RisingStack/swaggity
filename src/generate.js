@@ -68,7 +68,7 @@ function getCode (opts) {
 
   // Beautify source
   source = beautify(source, {
-    indent_size: 4,
+    indent_size: opts.indentSize || 2,
     max_preserve_newlines: 2
   });
 

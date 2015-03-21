@@ -7,47 +7,48 @@
  * @param {object} [domainOrOptions.token] - auth token - object with value property and optional headerOrQueryName and isQuery properties
  */
 var {{&className}} = (function(){
-    'use strict';
+  'use strict';
 
-    var request = require('superagent');
-    var Promise = require('bluebird');
+  var request = require('superagent');
+  var Promise = require('bluebird');
 
-    function {{&className}}(options){
-        var domain = (typeof options === 'object') ? options.domain : options;
-        this.domain = domain ? domain : '{{&domain}}';
-        if(this.domain.length === 0) {
-            throw new Error('Domain parameter must be specified as a string.');
-        }
+  function {{&className}}(options){
+    var domain = (typeof options === 'object') ? options.domain : options;
+    this.domain = domain ? domain : '{{&domain}}';
 
-        this.withCredentials = options.withCredentials;
-
-        {{#isSecure}}
-            this.token = (typeof options === 'object') ? (options.token ? options.token : {}) : {};
-        {{/isSecure}}
+    if(this.domain.length === 0) {
+      throw new Error('Domain parameter must be specified as a string.');
     }
 
+    this.withCredentials = options.withCredentials;
+
     {{#isSecure}}
-        /**
-         * Set Token
-         * @method
-         * @name {{&className}}#setToken
-         * @param {string} value - token's value
-         * @param {string} headerOrQueryName - the header or query name to send the token at
-         * @param {boolean} isQuery - true if send the token as query param, otherwise, send as header param
-         *
-         */
-        {{&className}}.prototype.setToken = function (value, headerOrQueryName, isQuery) {
-            this.token.value = value;
-            this.token.headerOrQueryName = headerOrQueryName;
-            this.token.isQuery = isQuery;
-        };
+      this.token = (typeof options === 'object') ? (options.token ? options.token : {}) : {};
     {{/isSecure}}
+  }
 
-    {{#methods}}
-        {{> method}}
-    {{/methods}}
+  {{#isSecure}}
+    /**
+     * Set Token
+     * @method
+     * @name {{&className}}#setToken
+     * @param {string} value - token's value
+     * @param {string} headerOrQueryName - the header or query name to send the token at
+     * @param {boolean} isQuery - true if send the token as query param, otherwise, send as header param
+     *
+     */
+    {{&className}}.prototype.setToken = function (value, headerOrQueryName, isQuery) {
+      this.token.value = value;
+      this.token.headerOrQueryName = headerOrQueryName;
+      this.token.isQuery = isQuery;
+    };
+  {{/isSecure}}
 
-    return {{&className}};
+  {{#methods}}
+    {{> method}}
+  {{/methods}}
+
+  return {{&className}};
 })();
 
 exports.{{&className}} = {{&className}};

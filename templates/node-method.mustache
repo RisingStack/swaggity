@@ -1,3 +1,4 @@
+
 /**
  * {{&summary}}
  * @method
@@ -8,101 +9,101 @@
  *
  */
  {{&className}}.prototype.{{&methodName}} = function(parameters){
-    if(parameters === undefined) {
-        parameters = {};
+  if(parameters === undefined) {
+    parameters = {};
+  }
+
+  var _this = this;
+
+  var domain = this.domain;
+  var path = '{{&path}}';
+
+  var body;
+  var queryParameters = {};
+  var headers = {};
+  var form = {};
+
+  {{#isSecure}}
+    if (this.token.isQuery) {
+        queryParameters[this.token.headerOrQueryName] = this.token.value;
+    } else if (this.token.headerOrQueryName) {
+        headers[this.token.headerOrQueryName] = this.token.value;
+    } else {
+        headers['Authorization'] = 'Bearer ' + this.token.value;
     }
+  {{/isSecure}}
 
-    var _this = this;
+  {{#parameters}}
 
-    var domain = this.domain;
-    var path = '{{&path}}';
-
-    var body;
-    var queryParameters = {};
-    var headers = {};
-    var form = {};
-
-    {{#isSecure}}
-        if (this.token.isQuery) {
-            queryParameters[this.token.headerOrQueryName] = this.token.value;
-        } else if (this.token.headerOrQueryName) {
-            headers[this.token.headerOrQueryName] = this.token.value;
-        } else {
-            headers['Authorization'] = 'Bearer ' + this.token.value;
-        }
-    {{/isSecure}}
-
-    {{#parameters}}
-
-        {{#isQueryParameter}}
-            {{#isSingleton}}
-                queryParameters['{{&name}}'] = '{{&singleton}}';
-            {{/isSingleton}}
-            {{^isSingleton}}
-                {{#isPatternType}}
-                    Object.keys(parameters).forEach(function(parameterName) {
-                        if(new RegExp('{{&pattern}}').test(parameterName)){
-                            queryParameters[parameterName] = parameters[parameterName];
-                        }
-                    });
-                {{/isPatternType}}
-                {{^isPatternType}}
-                if(parameters['{{&camelCaseName}}'] !== undefined){
-                    queryParameters['{{&name}}'] = parameters['{{&camelCaseName}}'];
-                }
-                {{/isPatternType}}
-            {{/isSingleton}}
-        {{/isQueryParameter}}
-
-        {{#isPathParameter}}
-            path = path.replace('{{=<% %>=}}{<%&name%>}<%={{ }}=%>', parameters['{{&camelCaseName}}']);
-        {{/isPathParameter}}
-
-        {{#isHeaderParameter}}
-            {{#isSingleton}}
-                headers['{{&name}}'] = '{{&singleton}}';
-            {{/isSingleton}}
-            {{^isSingleton}}
-                if(parameters['{{&camelCaseName}}'] !== undefined){
-                    headers['{{&name}}'] = parameters['{{&camelCaseName}}'];
-                }
-            {{/isSingleton}}
-        {{/isHeaderParameter}}
-
-        {{#isBodyParameter}}
-            if(parameters['{{&camelCaseName}}'] !== undefined){
-                body = parameters['{{&camelCaseName}}'];
-            }
-        {{/isBodyParameter}}
-
-         {{#isFormParameter}}
-            {{#isSingleton}}
-                form['{{&name}}'] = '{{&singleton}}';
-            {{/isSingleton}}
-            {{^isSingleton}}
-                if(parameters['{{&camelCaseName}}'] !== undefined){
-                    form['{{&name}}'] = parameters['{{&camelCaseName}}'];
-                }
-            {{/isSingleton}}
-        {{/isFormParameter}}
-
-        {{#required}}
-        if(parameters['{{&camelCaseName}}'] === undefined){
-            return Promise.reject(new Error('Missing required {{&paramType}} parameter: {{&camelCaseName}}'));
-        }
-        {{/required}}
-
-    {{/parameters}}
-
-    if(parameters.$queryParameters) {
-        Object.keys(parameters.$queryParameters)
-        .forEach(function(parameterName){
-            var parameter = parameters.$queryParameters[parameterName];
-            queryParameters[parameterName] = parameter;
+    {{#isQueryParameter}}
+      {{#isSingleton}}
+        queryParameters['{{&name}}'] = '{{&singleton}}';
+      {{/isSingleton}}
+      {{^isSingleton}}
+        {{#isPatternType}}
+        Object.keys(parameters).forEach(function(parameterName) {
+          if(new RegExp('{{&pattern}}').test(parameterName)){
+            queryParameters[parameterName] = parameters[parameterName];
+          }
         });
-    }
+        {{/isPatternType}}
+        {{^isPatternType}}
+        if(parameters['{{&camelCaseName}}'] !== undefined){
+          queryParameters['{{&name}}'] = parameters['{{&camelCaseName}}'];
+        }
+        {{/isPatternType}}
+      {{/isSingleton}}
+    {{/isQueryParameter}}
 
-    return new Promise(function (resolve, reject) {
-      {{> request}}
+    {{#isPathParameter}}
+        path = path.replace('{{=<% %>=}}{<%&name%>}<%={{ }}=%>', parameters['{{&camelCaseName}}']);
+    {{/isPathParameter}}
+
+    {{#isHeaderParameter}}
+        {{#isSingleton}}
+          headers['{{&name}}'] = '{{&singleton}}';
+        {{/isSingleton}}
+        {{^isSingleton}}
+          if(parameters['{{&camelCaseName}}'] !== undefined){
+              headers['{{&name}}'] = parameters['{{&camelCaseName}}'];
+          }
+        {{/isSingleton}}
+    {{/isHeaderParameter}}
+
+    {{#isBodyParameter}}
+      if(parameters['{{&camelCaseName}}'] !== undefined){
+          body = parameters['{{&camelCaseName}}'];
+      }
+    {{/isBodyParameter}}
+
+     {{#isFormParameter}}
+        {{#isSingleton}}
+          form['{{&name}}'] = '{{&singleton}}';
+        {{/isSingleton}}
+        {{^isSingleton}}
+          if(parameters['{{&camelCaseName}}'] !== undefined){
+              form['{{&name}}'] = parameters['{{&camelCaseName}}'];
+          }
+        {{/isSingleton}}
+    {{/isFormParameter}}
+
+    {{#required}}
+    if(parameters['{{&camelCaseName}}'] === undefined){
+      return Promise.reject(new Error('Missing required {{&paramType}} parameter: {{&camelCaseName}}'));
+    }
+    {{/required}}
+
+  {{/parameters}}
+
+  if(parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters)
+    .forEach(function(parameterName){
+        var parameter = parameters.$queryParameters[parameterName];
+        queryParameters[parameterName] = parameter;
     });
+  }
+
+  return new Promise(function (resolve, reject) {
+    {{> request}}
+  });
  };
