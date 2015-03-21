@@ -35,7 +35,7 @@ $http(options)
     deferred.resolve(res);
 
     if(parameters.$cache !== undefined) {
-        if('{{method}}' === 'GET') {
+        if('{{method}}' === 'GET' && status === 200) {
             parameters.$cache.put(cacheId, res, parameters.$cacheItemOpts ? parameters.$cacheItemOpts : {});
         } else if ('{{method}}' === 'POST' || '{{method}}' === 'PUT' || '{{method}}' === 'DELETE' || '{{method}}' === 'PATCH') {
           parameters.$cache.removeAll();

@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 
+var request = require('superagent');
 var Mustache = require('mustache');
 var beautify = require('js-beautify').js_beautify;
 var lint = require('jshint').JSHINT;
@@ -74,4 +75,28 @@ function getCode (opts) {
   return source;
 }
 
-exports.getCode = getCode;
+/*
+ * @method getCodeByUrl
+ * @param {String} url
+ * @param {Object} opts
+ * @callback
+ */
+function getCodeByUrl (url, opts, callback) {
+  request.get(url).end(function (err, res) {
+    if(err) {
+      return callback(err);
+    }
+
+    if(res.error) {
+      return callback(res.error);
+    }
+
+    opts.swagger = res.body;
+
+    var code = getCode(opts);
+    callback(null, code);
+  });
+}
+
+module.exports.getCode = getCode;
+module.exports.getCodeByUrl = getCodeByUrl;

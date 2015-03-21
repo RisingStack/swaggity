@@ -1,13 +1,13 @@
 var fs = require('fs');
 var swaggity = require('../');
-var swagger = require('./petstore.json');
+var swaggerDocs = require('./petstore.json');
 
 // generate node code
 var source = swaggity.getCode({
   type: 'node',
   moduleName: 'petstore',
   className: 'Petstore',
-  swagger: swagger,
+  swagger: swaggerDocs,
   skipMethods: ['OPTIONS']
 });
 
