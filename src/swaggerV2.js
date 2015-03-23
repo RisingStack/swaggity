@@ -1,6 +1,8 @@
 var _ = require('lodash');
 var helper = require('./helper');
 
+var AUTHORIZED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'HEAD', 'OPTIONS', 'LINK', 'UNLIK', 'PURGE', 'LOCK', 'UNLOCK', 'PROPFIND'];
+
 /*
  * @method getView
  * @param {Object} opts
@@ -8,7 +10,6 @@ var helper = require('./helper');
  */
 function getView (opts){
   var swagger = opts.swagger;
-  var authorizedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'HEAD', 'OPTIONS', 'LINK', 'UNLIK', 'PURGE', 'LOCK', 'UNLOCK', 'PROPFIND'];
   var data = {
     isNode: opts.type === 'node',
     description: swagger.info.description,
@@ -28,7 +29,7 @@ function getView (opts){
     });
 
     _.forEach(api, function(op, m){
-      if(authorizedMethods.indexOf(m.toUpperCase()) === -1) {
+      if(AUTHORIZED_METHODS.indexOf(m.toUpperCase()) === -1) {
         return;
       }
 
@@ -53,7 +54,8 @@ function getView (opts){
 
       params = params.concat(globalParams);
 
-      _.chain(params).forEach(function(parameter) {
+      method.parameters = _.map(params, function(parameter) {
+
         if (_.isString(parameter.$ref)) {
           var segments = parameter.$ref.split('/');
           parameter = swagger.parameters[segments.length === 1 ? segments[0] : segments[2] ];
@@ -81,7 +83,7 @@ function getView (opts){
             parameter.isFormParameter = true;
         }
 
-        method.parameters.push(parameter);
+        return parameter;
       });
 
       data.methods.push(method);
