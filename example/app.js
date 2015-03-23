@@ -9,6 +9,7 @@ var source = swaggity.getCode({
   type: 'node',
   moduleName: 'petstore',
   className: 'Petstore',
+  resourcesByPath: true,
   swagger: swaggerDocs,
   indentSize: 2,                // optional
   skipMethods: ['OPTIONS']      // optional

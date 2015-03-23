@@ -29,7 +29,7 @@ function getView (opts){
 
     _.forEach(api, function(op, m){
       if(authorizedMethods.indexOf(m.toUpperCase()) === -1) {
-          return;
+        return;
       }
 
       var method = {
@@ -40,28 +40,30 @@ function getView (opts){
         isGET: m.toUpperCase() === 'GET',
         summary: op.description,
         isSecure: op.security !== undefined,
-        parameters: []
+        parameters: [],
+        tags: op.tags,
+        resource: helper.camelCase(path.split('/')[1])
       };
 
       var params = [];
 
       if(_.isArray(op.parameters)) {
-          params = op.parameters;
+        params = op.parameters;
       }
 
       params = params.concat(globalParams);
 
       _.chain(params).forEach(function(parameter) {
         if (_.isString(parameter.$ref)) {
-            var segments = parameter.$ref.split('/');
-            parameter = swagger.parameters[segments.length === 1 ? segments[0] : segments[2] ];
+          var segments = parameter.$ref.split('/');
+          parameter = swagger.parameters[segments.length === 1 ? segments[0] : segments[2] ];
         }
 
         parameter.camelCaseName = helper.camelCase(parameter.name);
 
         if(parameter.enum && parameter.enum.length === 1) {
-            parameter.isSingleton = true;
-            parameter.singleton = parameter.enum[0];
+          parameter.isSingleton = true;
+          parameter.singleton = parameter.enum[0];
         }
 
         if(parameter.in === 'body'){
@@ -69,10 +71,10 @@ function getView (opts){
         } else if(parameter.in === 'path'){
             parameter.isPathParameter = true;
         } else if(parameter.in === 'query'){
-            if(parameter.pattern){
-                parameter.isPatternType = true;
-            }
-            parameter.isQueryParameter = true;
+          if(parameter.pattern){
+              parameter.isPatternType = true;
+          }
+          parameter.isQueryParameter = true;
         } else if(parameter.in === 'header'){
             parameter.isHeaderParameter = true;
         } else if(parameter.in === 'formData'){

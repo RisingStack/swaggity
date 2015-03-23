@@ -44,6 +44,24 @@ function getCode (opts) {
     });
   }
 
+  // group resources by path first chunk
+  // /pets-dog/{id} ->  petsDog
+  if(opts.resourcesByPath) {
+    data.resources = data.methods.reduce(function (_resources, method) {
+      _resources[method.resource] = _resources[method.resource] || {
+        resourceName: method.resource,
+        methods: []
+      };
+      _resources[method.resource].methods.push(method);
+
+      return _resources;
+    }, {});
+
+    data.resources = _.toArray(data.resources);
+
+    delete data.methods;
+  }
+
   // Generate source
   source = Mustache.render(tpl, data, {
     method: method,
