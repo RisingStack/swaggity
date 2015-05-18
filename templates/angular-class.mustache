@@ -29,7 +29,7 @@ angular.module('{{&moduleName}}')
         }
 
         {{&className}}.prototype.$on = function($scope, path, handler){
-            var url = domain + path;
+            var url = options.domain + path;
             $scope.$on(url, function(){
                 handler();
             });
@@ -37,7 +37,7 @@ angular.module('{{&moduleName}}')
         };
 
         {{&className}}.prototype.$broadcast = function(path){
-            var url = domain + path;
+            var url = options.domain + path;
             //cache.remove(url);
             $rootScope.$broadcast(url);
             return this;
