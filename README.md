@@ -4,32 +4,38 @@ Client generation from swagger docs for Node.js, Browser and AngularJS
 
 ## API
 
-## Get code
-
-`getCode(opts)`
+### Get code
 
 ```
-swagger: (JSON swagger docs),
+var code = getCode(swagerJSON, opts);
+```
 
+### Get code by url
+
+#### Callback
+
+```
+getCodeByUrl(url, opts, function (code) { ... })
+```
+
+#### Promise
+
+```
+getCodeByUrl(url, opts)
+  .then(function (code) { ... })
+  .catch(function (err) { ... })
+```
+## options
+
+```
 type: 'node',
 moduleName: 'petstore',
 className: 'Petstore',
-resourcesByPath: true,
-swagger: swaggerDocs,
 indentSize: 2,                // optional
-skipMethods: ['OPTIONS']      // optional
+skipMethods: ['OPTIONS'],     // optional
+authorization: ['USER']       // optional
 ```
-
-## Get code by url
-
-`getCodeByUrl(url, opts, callback)`
-
+**experimental options:**  
 ```
-type: 'node',
-moduleName: 'petstore',
-className: 'Petstore',
-resourcesByPath: true,
-swagger: swaggerDocs,
-indentSize: 2,                // optional
-skipMethods: ['OPTIONS']      // optional
+resourcesByPath: true
 ```

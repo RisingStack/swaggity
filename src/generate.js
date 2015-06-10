@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 
+var callbackify = require('callbackify');
 var request = require('superagent');
 var Mustache = require('mustache');
 var beautify = require('js-beautify').js_beautify;
@@ -12,13 +13,17 @@ var swaggerV2 = require('./swaggerV2');
 
 /*
  * @method getCode
+ * @param {Object} swagger
  * @param {Object} opts
  */
-function getCode (opts) {
+function getCode (swagger, opts) {
   var tpl;
   var method;
   var request;
   var source;
+
+  // TODO: from legacy code
+  opts.swagger = swagger;
 
   // For Swagger Specification version 2.0 value of field 'swagger' must be a string '2.0'
   var data = opts.swagger.swagger === '2.0' ? swaggerV2.getView(opts) : swaggerV1.getView(opts);
@@ -37,15 +42,34 @@ function getCode (opts) {
     request = fs.readFileSync(path.resolve(__dirname, '../templates/', opts.type + '-request.mustache'), 'utf-8');
   }
 
-  // Skip methods, for example: DELETE needed only for admin
+  // Skip methods based on method type, for example: DELETE needed only for admin
   if(_.isArray(opts.skipMethods)) {
     data.methods = data.methods.filter(function (item) {
       return opts.skipMethods.indexOf(item.method) === -1;
     });
   }
 
+  // Skip methods based on security
+  if(_.isArray(opts.authorization)) {
+    data.methods = data.methods.filter(function (item) {
+
+      // no auth specified
+      if(!_.isArray(item.authorization) || item.authorization.length === 0) {
+        return true;
+      }
+
+      // auth match
+      if (_.intersection(item.authorization, opts.authorization).length) {
+        return true;
+      }
+
+      return false;
+    });
+  }
+
   // group resources by path first chunk
   // /pets-dog/{id} ->  petsDog
+  // FIXME
   if(opts.resourcesByPath) {
     data.resources = data.methods.reduce(function (_resources, method) {
       _resources[method.resource] = _resources[method.resource] || {
@@ -97,24 +121,29 @@ function getCode (opts) {
  * @method getCodeByUrl
  * @param {String} url
  * @param {Object} opts
- * @callback
+ * @returns {Promise}
  */
-function getCodeByUrl (url, opts, callback) {
-  request.get(url).end(function (err, res) {
-    if(err) {
-      return callback(err);
-    }
+function getCodeByUrl (url, opts) {
+  return new Promise(function (resolve, reject) {
+    request.get(url).end(function (err, res) {
+      var code;
+      var swagger;
 
-    if(res.error) {
-      return callback(res.error);
-    }
+      if (err) {
+        return reject(err);
+      }
 
-    opts.swagger = res.body;
+      if (res.error) {
+        return reject(res.error);
+      }
 
-    var code = getCode(opts);
-    callback(null, code);
+      swagger = res.body;
+      code = getCode(swagger, opts);
+
+      resolve(code);
+    });
   });
 }
 
 module.exports.getCode = getCode;
-module.exports.getCodeByUrl = getCodeByUrl;
+module.exports.getCodeByUrl = callbackify(getCodeByUrl);

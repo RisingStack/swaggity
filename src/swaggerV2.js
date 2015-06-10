@@ -33,6 +33,9 @@ function getView (opts){
         return;
       }
 
+      op.security = op.security || [];
+      var authorization = (op.security[1] || {}).authorization;
+
       var method = {
         path: path,
         className: opts.className,
@@ -43,6 +46,7 @@ function getView (opts){
         isSecure: op.security !== undefined,
         parameters: [],
         tags: op.tags,
+        authorization: authorization,
         resource: helper.camelCase(path.split('/')[1])
       };
 
