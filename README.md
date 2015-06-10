@@ -31,9 +31,9 @@ getCodeByUrl(url, opts)
 type: 'node',
 moduleName: 'petstore',
 className: 'Petstore',
-indentSize: 2,                // optional
-skipMethods: ['OPTIONS'],     // optional
-authorization: ['USER']       // optional
+indentSize: 2,                // optional, code indent size
+skipMethods: ['OPTIONS'],     // optional, skip methods where method type match
+authorization: ['USER']       // optional, skip methods where auth doesn't match
 ```
 **experimental options:**  
 ```
