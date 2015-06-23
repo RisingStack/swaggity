@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-/*
+/**
  * @method camelCase
  * @param {String} id
  * @returns {String}
@@ -19,7 +19,7 @@ function camelCase (id) {
   return tokens.join('');
 }
 
-/*
+/**
  * @method getPathToMethodName
  * @param {String} method
  * @param {String} path

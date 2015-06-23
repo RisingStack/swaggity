@@ -1,6 +1,6 @@
 var helper = require('./helper');
 
-/*
+/**
  * @method getView
  * @param {Object} opts
  * @param {String} type

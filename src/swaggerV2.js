@@ -3,7 +3,7 @@ var helper = require('./helper');
 
 var AUTHORIZED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'HEAD', 'OPTIONS', 'LINK', 'UNLIK', 'PURGE', 'LOCK', 'UNLOCK', 'PROPFIND'];
 
-/*
+/**
  * @method getView
  * @param {Object} opts
  * @returns {Object} data

@@ -11,7 +11,7 @@ var _ = require('lodash');
 var swaggerV1 = require('./swaggerV1');
 var swaggerV2 = require('./swaggerV2');
 
-/*
+/**
  * @method getCode
  * @param {Object} swagger
  * @param {Object} opts
@@ -117,7 +117,7 @@ function getCode (swagger, opts) {
   return source;
 }
 
-/*
+/**
  * @method getCodeByUrl
  * @param {String} url
  * @param {Object} opts
