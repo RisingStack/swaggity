@@ -17,5 +17,14 @@
   "unused": true,
   "trailing": true,
   "smarttabs": true,
-  "newcap": false
+  "newcap": false,
+  "globals": {
+    "it": false,
+    "describe": false,
+    "beforeEach": false,
+    "afterEach": false,
+    "inject": false,
+    "before": false,
+    "after": false
+  }
 }

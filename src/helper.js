@@ -1,22 +1,33 @@
 var _ = require('lodash');
 
 /**
- * @method camelCase
- * @param {String} id
+ * @mehod camelCaseByChar
+ * @param {String} char
+ * @param {String} text
  * @returns {String}
  */
-function camelCase (id) {
-  var tokens = [];
-
-  id.split('-').forEach(function(token, index){
+function camelCaseByChar (char, text) {
+  var tokens = text.split(char).map(function(token, index){
     if(index === 0) {
-      tokens.push(token[0].toLowerCase() + token.substring(1));
+      return token[0].toLowerCase() + token.substring(1);
     } else {
-      tokens.push(token[0].toUpperCase() + token.substring(1));
+      return token[0].toUpperCase() + token.substring(1);
     }
   });
 
   return tokens.join('');
+}
+
+/**
+ * @method camelCase
+ * @param {String} text
+ * @returns {String}
+ */
+function camelCase (text) {
+  text = camelCaseByChar('-', text);
+  text = camelCaseByChar('_', text);
+
+  return text;
 }
 
 /**
