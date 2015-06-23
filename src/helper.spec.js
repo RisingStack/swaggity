@@ -8,4 +8,6 @@ describe('helper', function () {
     expect(helper.camelCase('soNothing')).to.be.equal('soNothing');
     expect(helper.camelCase('NotCamel')).to.be.equal('notCamel');
   });
+
+  it('should get method name from the path');
 });
