@@ -9,5 +9,11 @@ describe('helper', function () {
     expect(helper.camelCase('NotCamel')).to.be.equal('notCamel');
   });
 
-  it('should get method name from the path');
+  it('should get method name from the path', function () {
+    var name1 = helper.getPathToMethodName('GET', '/users/{userId}/locations/{locationId}');
+    var name2 = helper.getPathToMethodName('GET', '/cat-dogs/{catId}');
+
+    expect(name1).to.be.equal('getUsersByUserIdLocationsByLocationId');
+    expect(name2).to.be.equal('getCatDogsByCatId');
+  });
 });
