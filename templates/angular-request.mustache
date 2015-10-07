@@ -8,26 +8,28 @@ if(cached !== undefined && parameters.$refresh !== true) {
     return deferred.promise;
 }
 {{/isGET}}
+
 var options = {
-    timeout: parameters.$timeout,
-    method: '{{method}}',
-    url: url,
-    params: queryParameters,
-    data: body,
-    headers: headers
+  timeout: parameters.$timeout,
+  method: '{{method}}',
+  url: url,
+  params: queryParameters,
+  data: body,
+  headers: headers
 };
 if(Object.keys(form).length > 0) {
    options.data = form;
    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
    options.transformRequest = {{&className}}.transformRequest;
 }
+
 $http(options)
 .success(function(data, status, headers, config) {
     var res = {
-        data: data,
-        status: status,
-        headers: headers,
-        config: config
+      data: data,
+      status: status,
+      headers: headers,
+      config: config
     };
 
     var cacheId = config.url + '?' + {{&className}}.transformRequest(config.params);

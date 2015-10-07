@@ -1,18 +1,17 @@
 /**
- * {{&summary}}
  * @method
  * @name {{&className}}#{{&methodName}}
 {{#parameters}}
 {{^isSingleton}} * @param {{=<% %>=}}{<%&type%>}<%={{ }}=%> {{&camelCaseName}} - {{&description}}{{/isSingleton}}
 {{/parameters}}
- *
  */
  {{&className}}.prototype.{{&methodName}} = function(parameters){
     if(parameters === undefined) {
         parameters = {};
     }
+
     var deferred = $q.defer();
-    
+
     var domain = this.domain;
     var path = '{{&path}}';
 
@@ -23,11 +22,11 @@
 
     {{#isSecure}}
         if (this.token.isQuery) {
-            queryParameters[this.token.headerOrQueryName] = this.token.value;
+          queryParameters[this.token.headerOrQueryName] = this.token.value;
         } else if (this.token.headerOrQueryName) {
-            headers[this.token.headerOrQueryName] = this.token.value;
+          headers[this.token.headerOrQueryName] = this.token.value;
         } else {
-            headers['Authorization'] = 'Bearer ' + this.token.value;
+          headers['Authorization'] = 'Bearer ' + this.token.value;
         }
     {{/isSecure}}
 

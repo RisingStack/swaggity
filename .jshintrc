@@ -1,10 +1,9 @@
 {
-  "strict": false,
   "esnext": true,
   "node": true,
+  "esnext": true,
   "browser": false,
   "bitwise": true,
-  "camelcase": false,
   "curly": true,
   "eqeqeq": true,
   "immed": true,
@@ -15,9 +14,10 @@
   "quotmark": "single",
   "undef": true,
   "unused": true,
+  "strict": false,
   "trailing": true,
   "smarttabs": true,
-  "newcap": false,
+  "expr": true,
   "globals": {
     "it": false,
     "describe": false,

@@ -2,11 +2,12 @@
   "name": "swaggity",
   "version": "1.1.0",
   "description": "Client generation from swagger docs for Node.js, Browser and AngularJS",
-  "main": "index.js",
   "scripts": {
-    "test": "mocha --require co-mocha $(find src -name \"*.spec.js\")",
-    "coverage": "istanbul cover _mocha -- --require co-mocha $(find src -name \"*.spec.js\"); open coverage/lcov-report/index.html",
-    "jshint": "jshint src"
+    "e2e": "mocha e2e/e2e.spec.js",
+    "test": "mocha $(find src -name \"*.spec.js\")",
+    "coverage": "istanbul cover _mocha -- $(find src -name \"*.spec.js\"); open coverage/lcov-report/index.html",
+    "jshint": "jshint src",
+    "jscs": "jscs src"
   },
   "repository": {
     "type": "git",
@@ -19,9 +20,9 @@
   },
   "homepage": "https://github.com/RisingStack/swaggity",
   "dependencies": {
+    "bluebird": "^2.10.1",
     "callbackify": "^1.1.0",
     "js-beautify": "^1.5.7",
-    "jshint": "^2.8.0",
     "lodash": "^3.9.3",
     "mustache": "^2.1.1",
     "superagent": "^1.2.0"
@@ -29,16 +30,19 @@
   "devDependencies": {
     "chai": "^3.0.0",
     "chai-subset": "^1.0.1",
-    "co-mocha": "^1.1.2",
     "istanbul": "^0.3.15",
+    "jscs": "^2.2.1",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
+    "nock": "^2.13.0",
     "pre-commit": "^1.0.10",
     "sinon": "^1.15.3",
     "sinon-chai": "^2.8.0"
   },
   "pre-commit": [
     "jshint",
-    "test"
+    "jscs",
+    "test",
+    "e2e"
   ]
 }

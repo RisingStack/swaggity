@@ -4,8 +4,8 @@ var fs = require('fs');
 var callbackify = require('callbackify');
 var request = require('superagent');
 var Mustache = require('mustache');
-var beautify = require('js-beautify').js_beautify;
-var lint = require('jshint').JSHINT;
+var beautify = require('js-beautify');
+var lint = require('jshint');
 var _ = require('lodash');
 
 var swaggerV1 = require('./swaggerV1');
@@ -16,21 +16,22 @@ var swaggerV2 = require('./swaggerV2');
  * @param {Object} swagger
  * @param {Object} opts
  */
-function getCode (swagger, opts) {
+function getCode(swagger, opts) {
   var tpl;
   var method;
   var request;
   var source;
 
-  // TODO: from legacy code
   opts.swagger = swagger;
 
   // For Swagger Specification version 2.0 value of field 'swagger' must be a string '2.0'
   var data = opts.swagger.swagger === '2.0' ? swaggerV2.getView(opts) : swaggerV1.getView(opts);
 
   if (!opts.type) {
-    if(!_.isObject(opts.template) || !_.isString(opts.template.class)  || !_.isString(opts.template.method) || !_.isString(opts.template.request)) {
-      throw new Error('Unprovided custom template. Please use the following template: template: { class: "...", method: "...", request: "..." }');
+    if (!_.isObject(opts.template) || !_.isString(opts.template.class) || !_.isString(opts.template.method) ||
+      !_.isString(opts.template.request)) {
+      throw new Error('Unprovided custom template. Please use the following template:' +
+        ' template: { class: "...", method: "...", request: "..." }');
     }
 
     tpl = opts.template.class;
@@ -43,47 +44,25 @@ function getCode (swagger, opts) {
   }
 
   // Skip methods based on method type, for example: DELETE needed only for admin
-  if(_.isArray(opts.skipMethods)) {
-    data.methods = data.methods.filter(function (item) {
+  if (_.isArray(opts.skipMethods)) {
+    data.methods = data.methods.filter(function(item) {
       return opts.skipMethods.indexOf(item.method) === -1;
     });
   }
 
   // Skip methods based on security
-  if(_.isArray(opts.authorization)) {
-    data.methods = data.methods.filter(function (item) {
-
+  if (_.isArray(opts.authorization)) {
+    data.methods = data.methods.filter(function(item) {
       // no auth specified
-      if(!_.isArray(item.authorization) || item.authorization.length === 0) {
+      if (!_.isArray(item.authorization) || !item.authorization.length) {
         return true;
       }
-
       // auth match
       if (_.intersection(item.authorization, opts.authorization).length) {
         return true;
       }
-
       return false;
     });
-  }
-
-  // group resources by path first chunk
-  // /pets-dog/{id} ->  petsDog
-  // FIXME
-  if(opts.resourcesByPath) {
-    data.resources = data.methods.reduce(function (_resources, method) {
-      _resources[method.resource] = _resources[method.resource] || {
-        resourceName: method.resource,
-        methods: []
-      };
-      _resources[method.resource].methods.push(method);
-
-      return _resources;
-    }, {});
-
-    data.resources = _.toArray(data.resources);
-
-    delete data.methods;
   }
 
   // Generate source
@@ -93,25 +72,25 @@ function getCode (swagger, opts) {
   });
 
   // Lint source
-  lint(source, {
+  lint.JSHINT(source, {
     node: opts.type === 'node' || !opts.type,
     browser: opts.type === 'angular' || !opts.type,
     undef: true,
     strict: true,
     trailing: true,
-    smarttabs: true
+    smarttabs: true,
   });
 
-  lint.errors.forEach(function(error){
-    if(error && error.code[0] === 'E') {
+  lint.JSHINT.errors.forEach(function(error) {
+    if (error && error.code[0] === 'E') {
       throw new Error(lint.errors[0].reason + ' in ' + lint.errors[0].evidence);
     }
   });
 
   // Beautify source
-  source = beautify(source, {
+  source = beautify.js_beautify(source, {
     indent_size: opts.indentSize || 2,
-    max_preserve_newlines: 2
+    max_preserve_newlines: 2,
   });
 
   return source;
@@ -123,25 +102,27 @@ function getCode (swagger, opts) {
  * @param {Object} opts
  * @returns {Promise}
  */
-function getCodeByUrl (url, opts) {
-  return new Promise(function (resolve, reject) {
-    request.get(url).end(function (err, res) {
-      var code;
-      var swagger;
+function getCodeByUrl(url, opts) {
+  return new Promise(function(resolve, reject) {
+    request
+      .get(url)
+      .end(function(err, res) {
+        var code;
+        var swagger;
 
-      if (err) {
-        return reject(err);
-      }
+        if (err) {
+          return reject(err);
+        }
 
-      if (res.error) {
-        return reject(res.error);
-      }
+        if (res.error) {
+          return reject(res.error);
+        }
 
-      swagger = res.body;
-      code = getCode(swagger, opts);
+        swagger = res.body;
+        code = getCode(swagger, opts);
 
-      resolve(code);
-    });
+        resolve(code);
+      });
   });
 }
 

@@ -9,11 +9,7 @@ var req = request[method](domain + path);
 // Type form
 if(Object.keys(form).length > 0) {
   req.type('form');
-}
-
-// Type json
-if(typeof(body) === 'object') {
-  req.set('Content-Type', 'application/json');
+  body = form;
 }
 
 if(_this.withCredentials) {

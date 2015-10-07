@@ -10,13 +10,14 @@ var {{&className}} = (function(){
   'use strict';
 
   var request = require('superagent');
-  var Promise = require('bluebird');
+  var Promise = Promise || require('bluebird');
 
   function {{&className}}(options){
+    options = options || {};
     var domain = (typeof options === 'object') ? options.domain : options;
     this.domain = domain ? domain : '{{&domain}}';
 
-    if(this.domain.length === 0) {
+    if(!this.domain.length) {
       throw new Error('Domain parameter must be specified as a string.');
     }
 
@@ -47,10 +48,6 @@ var {{&className}} = (function(){
   {{#methods}}
     {{> method}}
   {{/methods}}
-
-  {{#resources}}
-    {{> resource}}
-  {{/resources}}
 
   return {{&className}};
 })();

@@ -10,7 +10,8 @@ var source = swaggity.getCode(swaggerDocs, {
   moduleName: 'petstore',
   className: 'Petstore',
   indentSize: 2,                // optional
-  skipMethods: ['OPTIONS']      // optional
+  skipMethods: ['OPTIONS'],      // optional
+  authorization: ['admin', 'user']
 });
 
-fs.writeFileSync('./petstore-api.js', source);
+fs.writeFileSync('./example/petstore-api.js', source);

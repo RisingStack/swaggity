@@ -1,98 +1,81 @@
+var util = require('util');
 var _ = require('lodash');
 var helper = require('./helper');
 
-var AUTHORIZED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'HEAD', 'OPTIONS', 'LINK', 'UNLIK', 'PURGE', 'LOCK', 'UNLOCK', 'PROPFIND'];
+var AUTHORIZED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'HEAD', 'OPTIONS', 'LINK', 'UNLIK',
+  'PURGE', 'LOCK', 'UNLOCK', 'PROPFIND'];
 
 /**
  * @method getView
  * @param {Object} opts
  * @returns {Object} data
  */
-function getView (opts){
+function getView(opts) {
   var swagger = opts.swagger;
   var data = {
     isNode: opts.type === 'node',
     description: swagger.info.description,
-    isSecure: swagger.securityDefinitions !== undefined,
+    isSecure: swagger.securityDefinitions && !!swagger.securityDefinitions.api_key,
     moduleName: opts.moduleName,
     className: opts.className,
-    domain: (swagger.schemes && swagger.schemes.length > 0 && swagger.host && swagger.basePath) ? swagger.schemes[0] + '://' + swagger.host + swagger.basePath : '',
-    methods: []
+    domain: (swagger.schemes && swagger.schemes.length > 0 && swagger.host && swagger.basePath) ?
+      util.format('%s://%s%s', swagger.schemes[0], swagger.host, swagger.basePath) : ''
   };
 
-  _.forEach(swagger.paths, function(api, path){
-    var globalParams = [];
-    _.forEach(api, function(op, m){
-      if(m.toLowerCase() === 'parameters') {
-        globalParams = op;
-      }
-    });
-
-    _.forEach(api, function(op, m){
-      if(AUTHORIZED_METHODS.indexOf(m.toUpperCase()) === -1) {
-        return;
-      }
-
-      op.security = op.security || [];
-      var authorization = (op.security[1] || {}).authorization;
-
-      var method = {
-        path: path,
-        className: opts.className,
-        methodName: op['x-swagger-js-method-name'] ? op['x-swagger-js-method-name'] : (op.operationId ? op.operationId : helper.getPathToMethodName(m, path)),
-        method: m.toUpperCase(),
-        isGET: m.toUpperCase() === 'GET',
-        summary: op.description,
-        isSecure: op.security !== undefined,
-        parameters: [],
-        tags: op.tags,
-        authorization: authorization,
-        resource: helper.camelCase(path.split('/')[1])
-      };
-
-      var params = [];
-
-      if(_.isArray(op.parameters)) {
-        params = op.parameters;
-      }
-
-      params = params.concat(globalParams);
-
-      method.parameters = _.map(params, function(parameter) {
-
-        if (_.isString(parameter.$ref)) {
-          var segments = parameter.$ref.split('/');
-          parameter = swagger.parameters[segments.length === 1 ? segments[0] : segments[2] ];
+  data.methods = _.chain(swagger.paths)
+    .map(function (api, path) {
+      var globalParams = _.filter(api, function(operation, method) {
+        if (method.toLowerCase() === 'parameters') {
+          return operation;
         }
-
-        parameter.camelCaseName = helper.camelCase(parameter.name);
-
-        if(parameter.enum && parameter.enum.length === 1) {
-          parameter.isSingleton = true;
-          parameter.singleton = parameter.enum[0];
-        }
-
-        if(parameter.in === 'body'){
-            parameter.isBodyParameter = true;
-        } else if(parameter.in === 'path'){
-            parameter.isPathParameter = true;
-        } else if(parameter.in === 'query'){
-          if(parameter.pattern){
-              parameter.isPatternType = true;
-          }
-          parameter.isQueryParameter = true;
-        } else if(parameter.in === 'header'){
-            parameter.isHeaderParameter = true;
-        } else if(parameter.in === 'formData'){
-            parameter.isFormParameter = true;
-        }
-
-        return parameter;
       });
 
-      data.methods.push(method);
-    });
-  });
+      return _.map(api, function(operation, method) {
+        if (AUTHORIZED_METHODS.indexOf(method.toUpperCase()) === -1) {
+          return;
+        }
+
+        var auth = _.find(operation.security, 'authorization');
+
+        var _data = {
+          path: path,
+          className: opts.className,
+          methodName: operation['x-swagger-js-method-name'] ?
+            operation['x-swagger-js-method-name'] : (operation.operationId ?
+              operation.operationId : helper.getPathToMethodName(method, path)),
+          method: method.toUpperCase(),
+          isGET: method.toUpperCase() === 'GET',
+          summary: operation.description,
+          isSecure: !!_.find(operation.security, 'api_key'),
+          parameters: [],
+          tags: operation.tags,
+          authorization: auth ? auth.authorization : '',
+          resource: helper.camelCase(path.split('/')[1]),
+        };
+
+        var params = [];
+
+        if (_.isArray(operation.parameters)) {
+          params = operation.parameters;
+        }
+
+        params = params.concat(globalParams);
+
+        _data.parameters = _.map(params, function(parameter) {
+
+          if (_.isString(parameter.$ref)) {
+            var segments = parameter.$ref.split('/');
+            parameter = swagger.parameters[segments[2] || segments[0]];
+          }
+
+          return helper.decorateParameter('v2', parameter);
+        });
+
+        return _data;
+      });
+    })
+    .flatten()
+    .value();
 
   return data;
 }
