@@ -1,6 +1,6 @@
 {
   "name": "swaggity",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Client generation from swagger docs for Node.js, Browser and AngularJS",
   "scripts": {
     "e2e": "mocha e2e/e2e.spec.js",
